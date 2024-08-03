@@ -1,0 +1,7 @@
+bash -x ./autogit4unimoose.sh
+
+and
+
+cat templates/*
+
+to output all templates to the terminal
