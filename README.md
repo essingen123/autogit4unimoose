@@ -1,5 +1,5 @@
 # autogit4unimoose
-![Image](amazing_moose2.jpeg)
+<!-- ![Image](github_repo_image.webp) -->
 
 ## Description
 A work in progress with automation testing for Git leveraging python, bash etc
