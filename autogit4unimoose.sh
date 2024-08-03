@@ -273,16 +273,25 @@ echo "GitHub token saved securely!"
 fi
 }
 
-# Function to change ownership of files
 chown_local_f() {
-if [[ ${global_conf[set303l]} =~ ^[Nn]$ ]]
-then
-return 0
-elif [[ ${global_conf[set303l]} =~ ^[Yy]$ ]]
-then
-sudo chown -R $(whoami) .
-echo "Changed ownership to $(whoami)!"
-fi
+  local needs_chown=0
+  if [[ ${global_conf[set303l]} =~ ^[Nn]$ ]]; then
+    return 0
+  elif [[ ${global_conf[set303l]} =~ ^[Yy]$ ]]; then
+    for file in *; do
+      local current_owner=$(stat -c "%U" "$file")
+      if [ "$current_owner" != "$(whoami)" ]; then
+        needs_chown=1
+        break
+      fi
+    done
+    if [ $needs_chown -eq 1 ]; then
+      sudo chown -R $(whoami) .
+      echo "Changed ownership to $(whoami)!"
+    else
+      echo "Ownership is already set to $(whoami) for all files, no change needed."
+    fi
+  fi
 }
 
 
@@ -458,7 +467,7 @@ def create_html_page(repo_name):
     with open('README.md', 'r') as readme_file:
       readme_content = readme_file.read()
     html = markdown.markdown(readme_content)
-    full_html = f\"\"\"<html><head><title>{repo_name}</title></head><body>{html}</body></html>\"\"\"
+    full_html = f\"\"\"<html><head><title>{repo_name}</title><link rel="stylesheet" href="https://essingen123.github.io/cssGuden/html_auto_style_factor_parameter_cool_party_2_of_30.css"></head><body>{html}</body></html>\"\"\"
     with open('index.html', 'w') as html_file:
       html_file.write(full_html)
     print('index.html created successfully.')
