@@ -335,7 +335,7 @@ update_repo_from_kigit() {
 
     # Update README and index.html if auto-generate is enabled
     if [[ "${global_conf[set303d]}" == "y" ]]; then
-        create_readmemd
+        #create_readmemd
         create_html_page
         fun_echo "README.md and index.html updated" "📄" 32
     fi
