@@ -146,6 +146,7 @@ local template_file=$(dirname "$0")/templates/a_1_template_kigit4.txt
 local repo_name=$(basename "$PWD")
 local owner="${GITHUB_USER:-$(git config user.name)}"
 github_pages_repo_url="https://$owner.github.io/$repo_name"
+echo github_pages_repo_url
 
 mkdir -p $(dirname "$template_file")
 cat > "$template_file" <<EOL
