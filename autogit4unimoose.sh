@@ -224,7 +224,7 @@ done < "$config_file"
 local owner="${GITHUB_USER:-$(git config user.name)}"
 local repo_name=$(basename "$PWD")
 owner_slash_repo_global_var_set_onload_kigit="$owner/$repo_name"
-github_pages_repo_url="https://$owner.github.io/$repo_name"
+github_pages_repo_url="https://$owner.github.io/$repo_name/"
 
 echo "**************";
 echo $github_pages_repo_url
@@ -532,9 +532,8 @@ echo "config --get remote.origin.head:" && git config --get remote.origin.head
 
 change_or_create_new_branch "${global_conf[set303j]:-main}"
 
-[ ! -f "README.md" ] && (create_readmemd; create_html_page)
-
-
+[ ! -f "README.md" ] && (create_readmemd)
+[ ! -f "index.html" ] && (create_html_page)
 
 push_sync_git_repository "${global_conf[set303k]//\~date/$(date '+%Y%m%d-%H')}" "${global_conf[set303b]}" "${global_conf[set303j]:-main}"
 update_repo_homepage "${global_conf[set303b]}" "${GITHUB_USER:-$(git config user.name)}"

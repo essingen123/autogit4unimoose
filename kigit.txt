@@ -23,7 +23,7 @@ set303e=Git, Bash, Automation, Automagic, un-PEP8-perhaps
 set303f=A work in progress with automation testing for Git leveraging python, bash etc
 
 # website URL
-set303g=https://essingen123.github.io/autogit4unimoose
+set303g=https://essingen123.github.io/autogit4unimoose/
 
 # GithubPartywebpageLink
 set303h=index.html
