@@ -285,6 +285,71 @@ echo "Changed ownership to $(whoami)!"
 fi
 }
 
+
+update_repo_from_kigit() {
+    local owner_slash_repo_global_var_set_onload_kigit=$1
+    local owner="${GITHUB_USER:-$(git config user.name)}"
+
+    # Check if repo name has changed
+    local current_repo_name=$(basename "$PWD")
+    if [[ "${global_conf[set303b]}" != "$current_repo_name" ]]; then
+        gh repo rename "${global_conf[set303b]}" --repo "$owner_slash_repo_global_var_set_onload_kigit"
+        owner_slash_repo_global_var_set_onload_kigit="$owner/${global_conf[set303b]}"
+        fun_echo "Repository renamed to ${global_conf[set303b]}" "🏷️" 32
+    fi
+
+    # Update visibility
+    local current_visibility=$(gh repo view "$owner_slash_repo_global_var_set_onload_kigit" --json isPrivate --jq '.isPrivate')
+    if [[ "$current_visibility" == "true" && "${global_conf[set303c]}" == "public" ]]; then
+        gh repo edit "$owner_slash_repo_global_var_set_onload_kigit" --visibility public
+        fun_echo "Repository visibility changed to public" "🌍" 32
+    elif [[ "$current_visibility" == "false" && "${global_conf[set303c]}" == "private" ]]; then
+        gh repo edit "$owner_slash_repo_global_var_set_onload_kigit" --visibility private
+        fun_echo "Repository visibility changed to private" "🔒" 32
+    fi
+
+    # Update description
+    gh repo edit "$owner_slash_repo_global_var_set_onload_kigit" --description "${global_conf[set303f]}"
+
+    # Update homepage
+    gh repo edit "$owner_slash_repo_global_var_set_onload_kigit" --homepage "${global_conf[set303g]}"
+
+    # Update topics
+# does not exist!!!    gh repo edit "$owner_slash_repo_global_var_set_onload_kigit" --remove-all-topics "--remove-all-topics DOES NOT EXISTS!!!!"
+    IFS=',' read -ra topic_array <<< "${global_conf[set303e]}"
+    for topic in "${topic_array[@]}"; do
+        sanitized_topic=$(echo "$topic" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+        if [[ $sanitized_topic =~ ^[a-z0-9][a-z0-9-]{0,49}$ ]]; then
+            gh repo edit "$owner_slash_repo_global_var_set_onload_kigit" --add-topic "$sanitized_topic"
+        fi
+    done
+
+    # Update branch
+    local current_branch=$(git rev-parse --abbrev-ref HEAD)
+    if [[ "${global_conf[set303j]}" != "$current_branch" ]]; then
+        git checkout -b "${global_conf[set303j]}" || git checkout "${global_conf[set303j]}"
+        git push -u origin "${global_conf[set303j]}"
+        gh repo edit "$owner_slash_repo_global_var_set_onload_kigit" --default-branch "${global_conf[set303j]}"
+        fun_echo "Branch updated to ${global_conf[set303j]}" "🌿" 32
+    fi
+
+    # Update README and index.html if auto-generate is enabled
+    if [[ "${global_conf[set303d]}" == "y" ]]; then
+        create_readmemd
+        create_html_page
+        fun_echo "README.md and index.html updated" "📄" 32
+    fi
+
+    # Commit and push changes
+    git add .
+    git commit -m "${global_conf[set303k]//\~date/$(date '+%Y%m%d-%H')}" || true
+    git push origin "${global_conf[set303j]}"
+
+    fun_echo "Repository updated based on kigit.txt changes" "✅" 32
+}
+
+
+
 # Function to create README.md and index.html
 create_readmemd() {
 local template_dir=$(dirname "$0")/templates
@@ -469,9 +534,15 @@ change_or_create_new_branch "${global_conf[set303j]:-main}"
 
 [ ! -f "README.md" ] && (create_readmemd; create_html_page)
 
+
+
 push_sync_git_repository "${global_conf[set303k]//\~date/$(date '+%Y%m%d-%H')}" "${global_conf[set303b]}" "${global_conf[set303j]:-main}"
 update_repo_homepage "${global_conf[set303b]}" "${GITHUB_USER:-$(git config user.name)}"
 update_repo_topics "${global_conf[set303b]}" "${GITHUB_USER:-$(git config user.name)}"
+
+update_repo_from_kigit "$owner_slash_repo_global_var_set_onload_kigit"
+
+
 update_config_file_kigit
 create_first_run_py
 
