@@ -350,7 +350,7 @@ update_repo_from_kigit() {
         [ ! -f "README.md" ] && (create_readmemd)
         [ ! -f "index.html" ] && (create_html_page)
         
-        fun_echo "README.md and index.html updated" "📄" 32
+        fun_echo "README.md and index.html UPDATE IF PREVIOUS FILES DELETED! " "📄" 32
     fi
 
     # Commit and push changes
@@ -471,10 +471,10 @@ def create_html_page(repo_name):
     with open('README.md', 'r') as readme_file:
       readme_content = readme_file.read()
     html = markdown.markdown(readme_content)
-    full_html = f\"\"\"<html lang='EN'><html lang="EN">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width" width=device-width value="viewport" description="viewport" viewport="viewport: wow, could it be html??" />
-<head><title>{repo_name}</title><link rel="stylesheet" href="https://essingen123.github.io/cssGuden/html_auto_style_factor_parameter_cool_party_2_of_30.css"></head><body>{html}</body></html>\"\"\"
+    full_html = f\"\"\"<html lang='EN'><html lang='EN'>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width' width=device-width value='viewport' description='viewport' viewport='viewport: wow, could it be html??' />
+<head><title>{repo_name}</title><link rel='stylesheet' href='https://essingen123.github.io/cssGuden/html_auto_style_factor_parameter_cool_party_2_of_30.css'></head><body>{html}</body></html>\"\"\"
     with open('index.html', 'w') as html_file:
       html_file.write(full_html)
     print('index.html created successfully.')
