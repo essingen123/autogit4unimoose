@@ -346,7 +346,10 @@ update_repo_from_kigit() {
     # Update README and index.html if auto-generate is enabled
     if [[ "${global_conf[set303d]}" == "y" ]]; then
         #create_readmemd
-        create_html_page
+
+        [ ! -f "README.md" ] && (create_readmemd)
+        [ ! -f "index.html" ] && (create_html_page)
+        
         fun_echo "README.md and index.html updated" "📄" 32
     fi
 
@@ -468,7 +471,10 @@ def create_html_page(repo_name):
     with open('README.md', 'r') as readme_file:
       readme_content = readme_file.read()
     html = markdown.markdown(readme_content)
-    full_html = f\"\"\"<html><head><title>{repo_name}</title><link rel="stylesheet" href="https://essingen123.github.io/cssGuden/html_auto_style_factor_parameter_cool_party_2_of_30.css"></head><body>{html}</body></html>\"\"\"
+    full_html = f\"\"\"<html lang='EN'><html lang="EN">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width" width=device-width value="viewport" description="viewport" viewport="viewport: wow, could it be html??" />
+<head><title>{repo_name}</title><link rel="stylesheet" href="https://essingen123.github.io/cssGuden/html_auto_style_factor_parameter_cool_party_2_of_30.css"></head><body>{html}</body></html>\"\"\"
     with open('index.html', 'w') as html_file:
       html_file.write(full_html)
     print('index.html created successfully.')
