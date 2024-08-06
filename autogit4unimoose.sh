@@ -383,6 +383,7 @@ Tags: ${global_conf[set303e]}
 This project is licensed under a license not written here yet..
 EOL
 cat > "$template_dir/a_1_template_index.html" <<EOL
+<!DOCTYPE html>
 <html>
 <head>
 <title>${global_conf[set303b]}</title>
@@ -460,7 +461,7 @@ create_html_page() {
     return 1
   fi
 
-  python3 -c "
+  python3 -c """
 import os
 import markdown
 import requests
@@ -471,10 +472,16 @@ def create_html_page(repo_name):
     with open('README.md', 'r') as readme_file:
       readme_content = readme_file.read()
     html = markdown.markdown(readme_content)
-    full_html = f\"\"\"<html lang='EN'><html lang='EN'>
-<meta charset='UTF-8'>
-<meta name='viewport' content='width=device-width' width=device-width value='viewport' description='viewport' viewport='viewport: wow, could it be html??' />
-<head><title>{repo_name}</title><link rel='stylesheet' href='https://essingen123.github.io/cssGuden/html_auto_style_factor_parameter_cool_party_2_of_30.css'></head><body>{html}</body></html>\"\"\"
+    full_html = f\"\"\"<!DOCTYPE html>
+<html lang='EN'>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width' width=device-width value='viewport' description='viewport' viewport='viewport: wow, could it be html??' />
+  <head>
+    <title>{repo_name}</title><link rel='stylesheet' href='https://essingen123.github.io/cssGuden/html_auto_style_factor_parameter_cool_party_2_of_30.css'>
+  </head>
+  <body>{html}
+  </body>
+</html>\"\"\"
     with open('index.html', 'w') as html_file:
       html_file.write(full_html)
     print('index.html created successfully.')
@@ -498,7 +505,7 @@ def init_git_repo_localhub_pages(repo_name, token):
 
 create_html_page('${owner_slash_repo_global_var_set_onload_kigit}')
 check_github_pages('${owner_slash_repo_global_var_set_onload_kigit}', '${github_api_token}')
-"
+"""
 
   echo "HTML page created from README.md!"
 }
