@@ -346,7 +346,8 @@ update_repo_from_kigit() {
     # Update README and index.html if auto-generate is enabled
     if [[ "${global_conf[set303d]}" == "y" ]]; then
         #create_readmemd
-
+        # create_readmemd
+        # create_html_page
         [ ! -f "$(pwd)/README.md" ] && (create_readmemd)
         [ ! -f "$(pwd)/index.html" ] && (create_html_page)
         
@@ -468,6 +469,9 @@ import requests
 import sys
 
 def create_html_page(repo_name):
+  print('hello')
+  exit (0)
+ 
   if os.path.exists('README.md'):
     with open('README.md', 'r') as readme_file:
       readme_content = readme_file.read()
@@ -488,49 +492,13 @@ def create_html_page(repo_name):
   else:
     print('README.md not found.')
 
-# def check_github_pages(repo_name, token):
-#   headers = {'Authorization': f'token {token}', 'Accept': 'application/vnd.github.v3+json'}
-#   response = requests.get(f'https://api.github.com/repos/{repo_name}/pages', headers=headers)
-#   # if response.status_code == 404:
-#   #   init_git_repo_localhub_pages(repo_name, token)
-  
-#   init_git_repo_localhub_pages(repo_name, token)
-  
-# def init_git_repo_localhub_pages(repo_name, token):
-#   headers = {'Authorization': f'token {token}', 'Accept': 'application/vnd.github.v3+json'}
-#   data = {'source': {'branch': 'main', 'path': '/'}}
-#   response = requests.post(f'https://api.github.com/repos/{repo_name}/pages', headers=headers, json=data)
-#   if response.status_code == 201:
-#     print('GitHub Pages has been set up.')
-#   else:
-#     print('Failed to set up GitHub Pages.')
 def check_github_pages(repo_name, token):
-    headers = {'Authorization': f'token {token}', 'Accept': 'application/vnd.github.v3+json'}
-    response = requests.get(f'https://api.github.com/repos/{repo_name}/pages', headers=headers)
-
-    # Check for special row in kigit.txt
-    with open('kigit.txt', 'r') as kigit_file:
-        kigit_lines = kigit_file.readlines()
-
-    special_row_found = False
-    with open('kigit.txt', 'w') as kigit_file_write:
-        for line in kigit_lines:
-            if line.startswith('#909303Q2x'):
-                # Force GitHub Pages initialization
-                init_git_repo_localhub_pages(repo_name, token)
-                print("Special row detected and processed. GitHub Pages initialized.")
-                special_row_found = True
-            else:
-                kigit_file_write.write(line)
-
-    if not special_row_found:
-        # Handle regular GitHub Pages checks
-        if response.status_code == 404:
-            init_git_repo_localhub_pages(repo_name, token)
-        elif response.status_code == 200:
-            print("GitHub Pages is already enabled.")
-        else:
-            print(f"Error checking GitHub Pages: Status code {response.status_code}")
+  headers = {'Authorization': f'token {token}', 'Accept': 'application/vnd.github.v3+json'}
+  response = requests.get(f'https://api.github.com/repos/{repo_name}/pages', headers=headers)
+  # if response.status_code == 404:
+  #   init_git_repo_localhub_pages(repo_name, token)
+  
+  init_git_repo_localhub_pages(repo_name, token)
   
 def init_git_repo_localhub_pages(repo_name, token):
   headers = {'Authorization': f'token {token}', 'Accept': 'application/vnd.github.v3+json'}
@@ -540,6 +508,57 @@ def init_git_repo_localhub_pages(repo_name, token):
     print('GitHub Pages has been set up.')
   else:
     print('Failed to set up GitHub Pages.')
+
+
+
+
+
+
+# def check_github_pages(repo_name, token):
+#     headers = {'Authorization': f'token {token}', 'Accept': 'application/vnd.github.v3+json'}
+#     response = requests.get(f'https://api.github.com/repos/{repo_name}/pages', headers=headers)
+
+#     # Check for special row in kigit.txt
+#     with open('kigit.txt', 'r') as kigit_file:
+#         kigit_lines = kigit_file.readlines()
+
+#     special_row_found = False
+#     with open('kigit.txt', 'w') as kigit_file_write:
+#         for line in kigit_lines:
+#             if line.startswith('#909303Q2x'):
+#                 # Force GitHub Pages initialization
+#                 init_git_repo_localhub_pages(repo_name, token)
+#                 print("Special row detected and processed. GitHub Pages initialized.")
+#                 special_row_found = True
+#             else:
+#                 kigit_file_write.write(line)
+
+#     if not special_row_found:
+#         # Handle regular GitHub Pages checks
+#         if response.status_code == 404:
+#             init_git_repo_localhub_pages(repo_name, token)
+#         elif response.status_code == 200:
+#             print("GitHub Pages is already enabled.")
+#         else:
+#             print(f"Error checking GitHub Pages: Status code {response.status_code}")
+  
+# def init_git_repo_localhub_pages(repo_name, token):
+#   headers = {'Authorization': f'token {token}', 'Accept': 'application/vnd.github.v3+json'}
+#   data = {'source': {'branch': 'main', 'path': '/'}}
+#   response = requests.post(f'https://api.github.com/repos/{repo_name}/pages', headers=headers, json=data)
+#   if response.status_code == 201:
+#     print('GitHub Pages has been set up.')
+#   else:
+#     print('Failed to set up GitHub Pages.')
+
+
+
+
+
+
+
+
+
 create_html_page('${owner_slash_repo_global_var_set_onload_kigit}')
 check_github_pages('${owner_slash_repo_global_var_set_onload_kigit}', '${github_api_token}')
 """
@@ -592,8 +611,13 @@ echo "config --get remote.origin.head:" && git config --get remote.origin.head
 
 change_or_create_new_branch "${global_conf[set303j]:-main}"
 
-[ ! -f "README.md" ] && (create_readmemd)
-[ ! -f "index.html" ] && (create_html_page)
+echo "MANUAL RUN"
+create_html_page
+exit
+
+
+[ ! -f "$(pwd)/README.md" ] && (create_readmemd)
+[ ! -f "$(pwd)/index.html" ] && (create_html_page)
 
 push_sync_git_repository "${global_conf[set303k]//\~date/$(date '+%Y%m%d-%H')}" "${global_conf[set303b]}" "${global_conf[set303j]:-main}"
 update_repo_homepage "${global_conf[set303b]}" "${GITHUB_USER:-$(git config user.name)}"
