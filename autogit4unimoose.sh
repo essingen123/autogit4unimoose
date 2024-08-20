@@ -347,8 +347,8 @@ update_repo_from_kigit() {
     if [[ "${global_conf[set303d]}" == "y" ]]; then
         #create_readmemd
 
-        [ ! -f "README.md" ] && (create_readmemd)
-        [ ! -f "index.html" ] && (create_html_page)
+        [ ! -f "$(pwd)/README.md" ] && (create_readmemd)
+        [ ! -f "$(pwd)/index.html" ] && (create_html_page)
         
         fun_echo "README.md and index.html UPDATE IF PREVIOUS FILES DELETED! " "📄" 32
     fi
@@ -488,6 +488,22 @@ def create_html_page(repo_name):
   else:
     print('README.md not found.')
 
+# def check_github_pages(repo_name, token):
+#   headers = {'Authorization': f'token {token}', 'Accept': 'application/vnd.github.v3+json'}
+#   response = requests.get(f'https://api.github.com/repos/{repo_name}/pages', headers=headers)
+#   # if response.status_code == 404:
+#   #   init_git_repo_localhub_pages(repo_name, token)
+  
+#   init_git_repo_localhub_pages(repo_name, token)
+  
+# def init_git_repo_localhub_pages(repo_name, token):
+#   headers = {'Authorization': f'token {token}', 'Accept': 'application/vnd.github.v3+json'}
+#   data = {'source': {'branch': 'main', 'path': '/'}}
+#   response = requests.post(f'https://api.github.com/repos/{repo_name}/pages', headers=headers, json=data)
+#   if response.status_code == 201:
+#     print('GitHub Pages has been set up.')
+#   else:
+#     print('Failed to set up GitHub Pages.')
 def check_github_pages(repo_name, token):
     headers = {'Authorization': f'token {token}', 'Accept': 'application/vnd.github.v3+json'}
     response = requests.get(f'https://api.github.com/repos/{repo_name}/pages', headers=headers)
@@ -524,7 +540,6 @@ def init_git_repo_localhub_pages(repo_name, token):
     print('GitHub Pages has been set up.')
   else:
     print('Failed to set up GitHub Pages.')
-
 create_html_page('${owner_slash_repo_global_var_set_onload_kigit}')
 check_github_pages('${owner_slash_repo_global_var_set_onload_kigit}', '${github_api_token}')
 """
