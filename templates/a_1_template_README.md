@@ -1,4 +1,4 @@
-# autogit4unimoose
+# panik_button_cooler
 <!-- ![Image](github_repo_image.webp) -->
 
 ## Description

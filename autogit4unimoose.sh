@@ -5,7 +5,7 @@
 ./a.sh # deletas all for a restart
 declare -g owner_slash_repo_global_var_set_onload_kigit github_pages_repo_url
 declare -gA global_conf
-
+echo "to switch main branch to main from master  use: gh repo edit --default-branch main"
 # Fun and colorful output with emojis
 # Set up colors and formatting
 fun_echo() {
@@ -489,11 +489,33 @@ def create_html_page(repo_name):
     print('README.md not found.')
 
 def check_github_pages(repo_name, token):
-  headers = {'Authorization': f'token {token}', 'Accept': 'application/vnd.github.v3+json'}
-  response = requests.get(f'https://api.github.com/repos/{repo_name}/pages', headers=headers)
-  if response.status_code == 404:
-    init_git_repo_localhub_pages(repo_name, token)
+    headers = {'Authorization': f'token {token}', 'Accept': 'application/vnd.github.v3+json'}
+    response = requests.get(f'https://api.github.com/repos/{repo_name}/pages', headers=headers)
 
+    # Check for special row in kigit.txt
+    with open('kigit.txt', 'r') as kigit_file:
+        kigit_lines = kigit_file.readlines()
+
+    special_row_found = False
+    with open('kigit.txt', 'w') as kigit_file_write:
+        for line in kigit_lines:
+            if line.startswith('#909303Q2x'):
+                # Force GitHub Pages initialization
+                init_git_repo_localhub_pages(repo_name, token)
+                print("Special row detected and processed. GitHub Pages initialized.")
+                special_row_found = True
+            else:
+                kigit_file_write.write(line)
+
+    if not special_row_found:
+        # Handle regular GitHub Pages checks
+        if response.status_code == 404:
+            init_git_repo_localhub_pages(repo_name, token)
+        elif response.status_code == 200:
+            print("GitHub Pages is already enabled.")
+        else:
+            print(f"Error checking GitHub Pages: Status code {response.status_code}")
+  
 def init_git_repo_localhub_pages(repo_name, token):
   headers = {'Authorization': f'token {token}', 'Accept': 'application/vnd.github.v3+json'}
   data = {'source': {'branch': 'main', 'path': '/'}}
