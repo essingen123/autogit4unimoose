@@ -116,7 +116,7 @@ update_repo() {
 
 
 git add .
-git commit -m "committi pitti"
+git commit -m "Partial auto-commit"
 git push -u origin main
 #git push -u origin main --force
 
@@ -463,15 +463,15 @@ create_html_page() {
   fi
 
   python3 -c """
+# -*- coding: utf-8 -*-
 import os
 import markdown
 import requests
 import sys
 
 def create_html_page(repo_name):
-  print('hello')
-  exit (0)
- 
+  print ("442342425235235235235")
+
   if os.path.exists('README.md'):
     with open('README.md', 'r') as readme_file:
       readme_content = readme_file.read()
@@ -486,7 +486,9 @@ def create_html_page(repo_name):
   <body>{html}
   </body>
 </html>\"\"\"
+    
     with open('index.html', 'w') as html_file:
+
       html_file.write(full_html)
     print('index.html created successfully.')
   else:
