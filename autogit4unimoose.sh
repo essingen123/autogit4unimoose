@@ -82,10 +82,10 @@ update_repo_homepage() {
   local homepage=${global_conf[set303g]}
 
   # Update repository description
-  gh repo edit "$owner_slash_repo_global_var_set_onload_kigit" --description "$description"
+  gh repo edit --description "$description"
 
   # Update repository homepage
-  gh repo edit "$owner_slash_repo_global_var_set_onload_kigit" --homepage "$homepage"
+  gh repo edit --homepage "$homepage"
 
   fun_echo "Updated repository homepage and description!" "📚" 33
 }
@@ -101,7 +101,7 @@ update_repo_topics() {
   for topic in "${topic_array[@]}"; do
     sanitized_topic=$(echo "$topic" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
     if [[ $sanitized_topic =~ ^[a-z0-9][a-z0-9-]{0,49}$ ]]; then
-      gh repo edit "$owner_slash_repo_global_var_set_onload_kigit" --add-topic "$sanitized_topic"
+      gh repo edit --add-topic "$sanitized_topic"
     else
       fun_echo "Invalid topic: $topic. Topics must start with a lowercase letter or number, consist of 50 characters or less, and can include hyphens." "❌" 31
     fi
@@ -113,6 +113,7 @@ update_repo_topics() {
 update_repo() {
     local owner_slash_repo_global_var_set_onload_kigit=$1
     local branch=${global_conf[set303j]:-main}
+
 
 git add .
 git commit -m "Partial auto-commit"
@@ -294,6 +295,7 @@ chown_local_f() {
   fi
 }
 
+
 update_repo_from_kigit() {
     local owner_slash_repo_global_var_set_onload_kigit=$1
     local owner="${GITHUB_USER:-$(git config user.name)}"
@@ -445,21 +447,31 @@ echo "Created install_ish.py"
 fi
 }
 
-# Function to create HTML page and enable GitHub Pages
+# Function to create HTML page
 create_html_page() {
   local repo_name=${global_conf[set303b]}
   local owner="${GITHUB_USER:-$(git config user.name)}"
   local owner_slash_repo_global_var_set_onload_kigit="$owner/$repo_name"
+  local token_file=~/.git_very_secret_and_ignored_file_token
+  local github_api_token
 
-  # Only create index.html from README.md if it doesn't exist
-  if [[ ! -f index.html ]]; then
-    python3 -c """
+  if [[ -f $token_file ]]; then
+    github_api_token=$(<$token_file)
+  else
+    echo "GitHub token not found. Please set it in your environment variables or save it in the specified file."
+    return 1
+  fi
+
+  python3 -c """
+# -*- coding: utf-8 -*-
 import os
 import markdown
 import requests
 import sys
 
 def create_html_page(repo_name):
+  print ("442342425235235235235")
+
   if os.path.exists('README.md'):
     with open('README.md', 'r') as readme_file:
       readme_content = readme_file.read()
@@ -476,61 +488,84 @@ def create_html_page(repo_name):
 </html>\"\"\"
     
     with open('index.html', 'w') as html_file:
+
       html_file.write(full_html)
-    print('index.html created successfully from README.md.')
+    print('index.html created successfully.')
   else:
     print('README.md not found.')
 
 def check_github_pages(repo_name, token):
   headers = {'Authorization': f'token {token}', 'Accept': 'application/vnd.github.v3+json'}
   response = requests.get(f'https://api.github.com/repos/{repo_name}/pages', headers=headers)
-  if response.status_code == 404:
-    init_github_pages(repo_name, token)
-  elif response.status_code == 200:
-      print("GitHub Pages is already enabled for this repository.")
-  else:
-      print(f"Error checking GitHub Pages: Status code {response.status_code}")
-
-def init_github_pages(repo_name, token):
+  # if response.status_code == 404:
+  #   init_git_repo_localhub_pages(repo_name, token)
+  
+  init_git_repo_localhub_pages(repo_name, token)
+  
+def init_git_repo_localhub_pages(repo_name, token):
   headers = {'Authorization': f'token {token}', 'Accept': 'application/vnd.github.v3+json'}
   data = {'source': {'branch': 'main', 'path': '/'}}
   response = requests.post(f'https://api.github.com/repos/{repo_name}/pages', headers=headers, json=data)
   if response.status_code == 201:
     print('GitHub Pages has been set up.')
-    update_repo_homepage(repo_name, token)
   else:
-    print(f'Failed to set up GitHub Pages. Status code: {response.status_code}, Response: {response.text}')
+    print('Failed to set up GitHub Pages.')
 
-def update_repo_homepage(repo_name, token):
-    repo_owner, repo_short_name = repo_name.split('/')
-    homepage_url = f"https://{repo_owner}.github.io/{repo_short_name}/"
-    headers = {'Authorization': f'token {token}', 'Accept': 'application/vnd.github.v3+json'}
-    data = {'homepage': homepage_url}
-    response = requests.patch(f'https://api.github.com/repos/{repo_name}', headers=headers, json=data)
-    if response.status_code == 200:
-        print(f"Successfully updated homepage URL to {homepage_url}")
-    else:
-        print(f"Failed to update homepage URL. Status code: {response.status_code}, Response: {response.text}")
 
-# Retrieve token from environment variable
-github_api_token = os.environ.get('GITHUB_API_TOKEN')
-if github_api_token is None:
-    print("Error: GITHUB_API_TOKEN environment variable not set.")
-    sys.exit(1)
 
-# Only create index.html if it doesn't exist
-if not os.path.exists('index.html'):
-  create_html_page('${owner_slash_repo_global_var_set_onload_kigit}')
-else:
-  print("index.html already exists. Skipping creation.")
 
-check_github_pages('${owner_slash_repo_global_var_set_onload_kigit}', github_api_token)
+
+
+# def check_github_pages(repo_name, token):
+#     headers = {'Authorization': f'token {token}', 'Accept': 'application/vnd.github.v3+json'}
+#     response = requests.get(f'https://api.github.com/repos/{repo_name}/pages', headers=headers)
+
+#     # Check for special row in kigit.txt
+#     with open('kigit.txt', 'r') as kigit_file:
+#         kigit_lines = kigit_file.readlines()
+
+#     special_row_found = False
+#     with open('kigit.txt', 'w') as kigit_file_write:
+#         for line in kigit_lines:
+#             if line.startswith('#909303Q2x'):
+#                 # Force GitHub Pages initialization
+#                 init_git_repo_localhub_pages(repo_name, token)
+#                 print("Special row detected and processed. GitHub Pages initialized.")
+#                 special_row_found = True
+#             else:
+#                 kigit_file_write.write(line)
+
+#     if not special_row_found:
+#         # Handle regular GitHub Pages checks
+#         if response.status_code == 404:
+#             init_git_repo_localhub_pages(repo_name, token)
+#         elif response.status_code == 200:
+#             print("GitHub Pages is already enabled.")
+#         else:
+#             print(f"Error checking GitHub Pages: Status code {response.status_code}")
+  
+# def init_git_repo_localhub_pages(repo_name, token):
+#   headers = {'Authorization': f'token {token}', 'Accept': 'application/vnd.github.v3+json'}
+#   data = {'source': {'branch': 'main', 'path': '/'}}
+#   response = requests.post(f'https://api.github.com/repos/{repo_name}/pages', headers=headers, json=data)
+#   if response.status_code == 201:
+#     print('GitHub Pages has been set up.')
+#   else:
+#     print('Failed to set up GitHub Pages.')
+
+
+
+
+
+
+
+
+
+create_html_page('${owner_slash_repo_global_var_set_onload_kigit}')
+check_github_pages('${owner_slash_repo_global_var_set_onload_kigit}', '${github_api_token}')
 """
-  else
-    echo "index.html already exists. Skipping automatic creation."
-  fi
 
-  echo "GitHub Pages setup checked/initiated!"
+  echo "HTML page created from README.md!"
 }
 
 # Define API-like functions
@@ -578,7 +613,10 @@ echo "config --get remote.origin.head:" && git config --get remote.origin.head
 
 change_or_create_new_branch "${global_conf[set303j]:-main}"
 
+echo "MANUAL RUN"
 create_html_page
+exit
+
 
 [ ! -f "$(pwd)/README.md" ] && (create_readmemd)
 [ ! -f "$(pwd)/index.html" ] && (create_html_page)
@@ -589,8 +627,62 @@ update_repo_topics "${global_conf[set303b]}" "${GITHUB_USER:-$(git config user.n
 
 update_repo_from_kigit "$owner_slash_repo_global_var_set_onload_kigit"
 
+
 update_config_file_kigit
 create_first_run_py
+
+# Function to update GitHub pages
+update_github_pages() {
+    # Get the current GitHub page URL
+    if [ -f "kigit.txt" ]; then
+        url=$(grep "set303g" kigit.txt | cut -d'=' -f2-)
+    else
+        echo "Error: kigit.txt not found"
+        return
+    fi
+
+    # Check if index.html exists
+    if [ -f "index.html" ]; then
+        # Update GitHub pages content
+        git add index.html
+        git commit -m "Updated index.html for GitHub pages"
+        git push origin main
+    else
+        echo "Error: index.html not found"
+        return
+    fi
+
+    # Update GitHub pages URL
+    user=$(git config user.name)
+    repo=$(basename "$PWD")
+    github_pages_repo_url="https://${user}.github.io/${repo}"
+    sed -i -e "s/set303g=.*/set303g=${github_pages_repo_url}/g" kigit.txt
+}
+
+# Call the function to update GitHub pages
+update_github_pages
+```
+In this code:
+- We define a function `update_github_pages()` that checks for the existence of the `kigit.txt` file and `index.html` file.
+- If both files exist, it updates the `index.html` content on GitHub pages, updates the `set303g` value in `kigit.txt` with the correct GitHub pages URL, and pushes these changes to the main branch.
+
+To prevent the GitHub pages from getting stuck with old files, you can also use a function like this one:
+
+```bash
+# Function to force refresh GitHub pages
+force_refresh_github_pages() {
+  # Add a timestamp comment to README.md to force a rebuild
+  sed -i -e "\$a<!---- Last Update: $(date) -->" README.md || true
+
+  git add README.md
+  git commit -m "Force GitHub Pages refresh [$(date +'%Y-%m-%d %H:%M:%S')]"
+  git push origin main
+  echo "GitHub Pages refresh forced."
+}
+
+# Call the function to force refresh GitHub pages
+force_refresh_github_pages
+
 
 unset global_conf owner_slash_repo_global_var_set_onload_kigit github_pages_repo_url
 
