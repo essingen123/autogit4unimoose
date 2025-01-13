@@ -450,17 +450,10 @@ create_html_page() {
   local repo_name=${global_conf[set303b]}
   local owner="${GITHUB_USER:-$(git config user.name)}"
   local owner_slash_repo_global_var_set_onload_kigit="$owner/$repo_name"
-  local token_file=~/.git_very_secret_and_ignored_file_token
-  local github_api_token
 
-  if [[ -f $token_file ]]; then
-    github_api_token=$(<$token_file)
-  else
-    echo "GitHub token not found. Please set it in your environment variables or save it in the specified file."
-    return 1
-  fi
-
-  python3 -c """
+  # Only create index.html from README.md if it doesn't exist
+  if [[ ! -f index.html ]]; then
+    python3 -c """
 import os
 import markdown
 import requests
@@ -484,7 +477,7 @@ def create_html_page(repo_name):
     
     with open('index.html', 'w') as html_file:
       html_file.write(full_html)
-    print('index.html created successfully.')
+    print('index.html created successfully from README.md.')
   else:
     print('README.md not found.')
 
@@ -519,11 +512,25 @@ def update_repo_homepage(repo_name, token):
     else:
         print(f"Failed to update homepage URL. Status code: {response.status_code}, Response: {response.text}")
 
-create_html_page('${owner_slash_repo_global_var_set_onload_kigit}')
-check_github_pages('${owner_slash_repo_global_var_set_onload_kigit}', '${github_api_token}')
-"""
+# Retrieve token from environment variable
+github_api_token = os.environ.get('GITHUB_API_TOKEN')
+if github_api_token is None:
+    print("Error: GITHUB_API_TOKEN environment variable not set.")
+    sys.exit(1)
 
-  echo "HTML page created from README.md, and GitHub Pages setup checked/initiated!"
+# Only create index.html if it doesn't exist
+if not os.path.exists('index.html'):
+  create_html_page('${owner_slash_repo_global_var_set_onload_kigit}')
+else:
+  print("index.html already exists. Skipping creation.")
+
+check_github_pages('${owner_slash_repo_global_var_set_onload_kigit}', github_api_token)
+"""
+  else
+    echo "index.html already exists. Skipping automatic creation."
+  fi
+
+  echo "GitHub Pages setup checked/initiated!"
 }
 
 # Define API-like functions
